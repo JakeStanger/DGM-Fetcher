@@ -132,6 +132,7 @@ class DGMBot(discord.Client):
             elif ident == 'help':
                 embed = discord.Embed(title='Help', description='**$search <query>** - Search for shows\n'
                                                                 '**$next** - View next page of results\n'
+                                                                '**$previous** - View previous page of results\n'
                                                                 '**$select <num>** - Select result with this number\n'
                                                                 '**$tracks** - See tracks for selected show\n'
                                                                 '**$lineup** - See lineup for selected show\n'
