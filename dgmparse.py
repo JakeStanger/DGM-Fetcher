@@ -42,7 +42,7 @@ def query_index(index, query):
 
 class Show(Base):
     __tablename__ = 'shows'
-    __searchable__ = ['venue', 'location', 'date_friendly']
+    __searchable__ = ['venue', 'location', 'date_friendly', 'description']
     # __analyzer__ = StemmingAnalyzer()
 
     id = Column(Integer, primary_key=True)
