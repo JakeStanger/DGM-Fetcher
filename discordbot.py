@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 import discord
 import json
@@ -14,7 +14,7 @@ class DGMBot(discord.Client):
     _max_pages = 0
     _query = ''
 
-    _last_msg: discord.Message = None
+    _last_msg: Optional[discord.Message] = None
 
     _result: Show
 
@@ -60,19 +60,35 @@ class DGMBot(discord.Client):
                     self._result = results[0]
                     await self._send(message, self._build_show_embed(results[0]))
                 else:
-                    await self._send(message, self._build_search_embed(results, query))
+                    self._last_msg = await self._send(message, self._build_search_embed(results, query))
             elif ident == 'next':
                 if not self._results or not len(self._results):
                     await self._error(message, 'You have to search for something first')
                     return
 
-                if self._page_num + 1 < self._max_pages and len(self._results):
+                if self._page_num + 1 < self._max_pages:
                     self._page_num += 1
 
                     results = self._results[self._page_num * self.page_size:(self._page_num + 1) * self.page_size]
-                    await self._last_msg.delete()
-                    await self._send(message, self._build_search_embed(results, self._query))
 
+                    if self._last_msg:
+                        await self._last_msg.delete()
+
+                    self._last_msg = await self._send(message, self._build_search_embed(results, self._query))
+            elif ident == 'prev' or ident == 'previous':
+                if not self._results or not len(self._results):
+                    await self._error(message, 'You have to search for something first')
+                    return
+
+                if self._page_num - 1 >= 0:
+                    self._page_num -= 1
+
+                    results = self._results[self._page_num * self.page_size:(self._page_num + 1) * self.page_size]
+
+                    if self._last_msg:
+                        await self._last_msg.delete()
+
+                    self._last_msg = await self._send(message, self._build_search_embed(results, self._query))
             elif ident == 'select':
                 if not self._results or not len(self._results):
                     await self._error(message, 'You have to search for something first')
@@ -82,8 +98,9 @@ class DGMBot(discord.Client):
                 show = self._results[index]
 
                 self._result = show
+                self._last_msg = None
 
-                await self._last_msg.delete()
+                # await self._last_msg.delete()
                 await self._send(message, self._build_show_embed(show))
             elif ident == 'tracks':
                 if not self._result:
@@ -162,7 +179,7 @@ class DGMBot(discord.Client):
     async def _send(self, message, embed):
         msg = await message.channel.send(embed=embed)
         await message.delete()
-        self._last_msg = msg
+        return msg
 
     @staticmethod
     async def _error(message, error):
