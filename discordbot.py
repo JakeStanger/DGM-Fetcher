@@ -102,14 +102,23 @@ class DGMBot(discord.Client):
 
                 # await self._last_msg.delete()
                 await self._send(message, self._build_show_embed(show))
-            elif ident == 'tracks':
+            elif ident == 'description' or ident == 'desc':
+                if not self._result:
+                    await self._error(message, 'You have to select a show first')
+                    return
+
+                if not self._result.description:
+                    await self._error(message, 'No description for this show')
+                    return
+
+                await self._send(message, self._build_description_embed(self._result))
+            elif ident == 'tracks' or ident == 'setlist':
                 if not self._result:
                     await self._error(message, 'You have to select a show first')
                     return
                 if not len(self._result.tracks) > 0:
                     await self._error(message, 'No documented setlist for this show')
                     return
-
                 await self._send(message, self._build_tracks_embed(self._result))
             elif ident == 'members' or ident == 'lineup':
                 if not self._result:
@@ -175,6 +184,9 @@ class DGMBot(discord.Client):
         embed = discord.Embed(title=self._build_title(show) + ' - Lineup', description=description)
 
         return embed
+
+    def _build_description_embed(self, show: Show):
+        return discord.Embed(title=self._build_title(show) + ' - Description', description=show.description)
 
     async def _send(self, message, embed):
         msg = await message.channel.send(embed=embed)
