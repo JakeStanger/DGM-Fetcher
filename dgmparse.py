@@ -3,7 +3,7 @@ import re
 import os
 
 from elasticsearch import Elasticsearch
-from sqlalchemy import create_engine, Column, Integer, String, Date, Text, Boolean, ForeignKey, Table, case
+from sqlalchemy import create_engine, Column, Integer, String, Date, Text, Boolean, ForeignKey, Table, case, and_
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
@@ -30,6 +30,12 @@ def remove_from_index(index, model: Base):
 
 
 def query_index(index, query):
+    date_match = re.match('((.?)* )(\d{4})$', query)
+    year = None
+    if date_match:
+        query = date_match.group(1)
+        year = date_match.group(3)
+
     body = {'query': {'query_string': {'query': query}}, 'from': 0, 'size': 100}
 
     search = es.search(
@@ -37,7 +43,7 @@ def query_index(index, query):
         body=body)
 
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
-    return ids, search['hits']['total']
+    return ids, search['hits']['total'], year
 
 
 class Show(Base):
@@ -62,13 +68,18 @@ class Show(Base):
 
     @classmethod
     def search(cls, expression,):
-        ids, total = query_index('dgm_shows', expression)
+        ids, total, year = query_index('dgm_shows', expression)
         if total == 0:
             return session.query(Show).filter_by(id=0), 0
         when = []
         for i in range(len(ids)):
             when.append((ids[i], i))
-        return session.query(Show).filter(cls.id.in_(ids)).order_by(
+
+        if year:
+            f = and_(cls.id.in_(ids), cls.date_friendly.contains(year))
+        else:
+            f = cls.id.in_(ids)
+        return session.query(Show).filter(f).order_by(
             case(when, value=cls.id)).all(), total
 
 
