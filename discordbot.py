@@ -99,7 +99,7 @@ class DGMBot(discord.Client):
                     await self._error(message, 'You have to select a show first')
                     return
                 if not len(self._result.members) > 0:
-                    await self._error(message, 'No documented setlist for this show')
+                    await self._error(message, 'No documented members for this show')
                     return
 
                 await self._send(message, self._build_members_embed(self._result))
