@@ -135,7 +135,7 @@ class DGMBot(discord.Client):
                                                                 '**$select <num>** - Select result with this number\n'
                                                                 '**$tracks** - See tracks for selected show\n'
                                                                 '**$lineup** - See lineup for selected show\n'
-                                                                '**$members** - Alias for lineup\n'
+                                                                '**$description** - See description for selected show\n'
                                                                 '**$id <num>** - Select show with this DGM ID')
                 await message.channel.send(embed=embed)
                 await message.delete()
