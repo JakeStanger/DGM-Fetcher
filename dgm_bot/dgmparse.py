@@ -7,8 +7,9 @@ from sqlalchemy import create_engine, Column, Integer, String, Date, Text, Boole
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+import pkg_resources
 
-engine = create_engine('sqlite:///tours.db')
+engine = create_engine('sqlite:///%s' % pkg_resources.resource_filename('dgm_bot', 'tours.db'))
 Base = declarative_base()
 
 Session = sessionmaker(bind=engine)

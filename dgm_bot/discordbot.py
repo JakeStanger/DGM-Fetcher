@@ -1,11 +1,11 @@
 from typing import List, Optional
 
 import discord
-import json
 import math
 import time
-from dgmparse import session, Show, Track, Instrument, Member
-from dgmfetch import base_url
+from dgm_bot.dgmparse import session, Show
+from dgm_bot.dgmfetch import base_url
+import argparse
 
 
 class DGMBot(discord.Client):
@@ -20,11 +20,16 @@ class DGMBot(discord.Client):
 
     page_size = 10
 
+    def __init__(self, prefix):
+        super().__init__()
+        self.prefix = prefix
+
     async def on_ready(self):
         print('Logged on as {0}!'.format(self.user))
 
     async def on_message(self, message: discord.Message):
-        prefix = settings['discord_prefix']
+        prefix = self.prefix
+
         if message.content.startswith(prefix):
             command = message.content[len(prefix):].split(' ')
 
@@ -227,8 +232,16 @@ class DGMBot(discord.Client):
         return desc_builder
 
 
-with open('settings.json', 'r') as f:
-    settings = json.loads(f.read())
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--token')
+    parser.add_argument('-p', '--prefix')
 
-client = DGMBot()
-client.run(settings['discord_token'])
+    args = parser.parse_args()
+
+    client = DGMBot(args.prefix)
+    client.run(args.token)
+
+
+if __name__ == '__main__':
+    run()

@@ -1,0 +1,3 @@
+#!/usr/bin/env python3
+import dgm_bot
+dgm_bot.run()
