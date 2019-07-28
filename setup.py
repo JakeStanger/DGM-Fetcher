@@ -11,5 +11,6 @@ setup(
     license='MIT',
     author='Jake Stanger',
     author_email='mail@jstanger.dev',
-    description='Python scripts for scraping DGM Live tour pages and accompanying discord bot '
+    description='Python scripts for scraping DGM Live tour pages and accompanying discord bot ',
+    scripts=['bin/dgm-bot']
 )
